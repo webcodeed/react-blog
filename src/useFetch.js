@@ -6,9 +6,10 @@ const useFetch = (url) => {
     const [error, setError] = useState(null)
 
     useEffect(() => {
+        const controller = new AbortController()
         async function fetchData(url) {
             try {
-                const res = await fetch(url)
+                const res = await fetch(url, { signal: controller.signal })
                 const data = await res.json()
 
                 setIsPending(false)
@@ -22,6 +23,7 @@ const useFetch = (url) => {
         setTimeout(() => {
             fetchData(url)
         }, 1500)
+
     }, [])
 
     return { data, isPending, error }
