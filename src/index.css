@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
 
 /* base styles */
 * {
@@ -10,6 +10,7 @@
   padding: 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   max-width: 600px;
   margin: 0 auto;
   border-bottom: 1px solid #f2f2f2;
@@ -18,7 +19,7 @@
   color: #f1356d;
 }
 .navbar .links {
-  margin-left: auto;
+  /* margin-left: auto; */
 }
 .navbar a {
   margin-left: 16px;
@@ -28,6 +29,17 @@
 .navbar a:hover {
   color: #f1356d;
 }
+
+.navbar p {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.navbar .btn-group {
+  display: flex;
+  gap: 15px;
+}
+
 .content {
   max-width: 600px;
   margin: 40px auto;
@@ -41,7 +53,7 @@
   border-bottom: 1px solid #fafafa;
 }
 .blog-preview:hover {
-  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .blog-preview h2 {
   font-size: 20px;
@@ -64,7 +76,9 @@
   color: #f1356d;
   margin-bottom: 30px;
 }
-.create input, .create textarea, .create select {
+.create input,
+.create textarea,
+.create select {
   width: 100%;
   padding: 6px 10px;
   margin: 10px 0;
@@ -72,7 +86,8 @@
   box-sizing: border-box;
   display: block;
 }
-.create button {
+
+button {
   background: #f1356d;
   color: #fff;
   border: 0;

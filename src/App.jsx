@@ -1,17 +1,18 @@
-import { Outlet } from "react-router"
-import Create from "./Create"
-import Home from "./Home"
-import Navbar from "./Navbar"
+import { Outlet, useLoaderData } from "react-router";
+import Navbar from "./Navbar";
 
 function App() {
-    return (
-        <>
-            <Navbar />
-            <div className="content">
-                <Outlet />
-            </div>
-        </>
-    )
+  const res = useLoaderData();
+  console.log(res);
+
+  return (
+    <>
+      <Navbar user={res.user} />
+      <div className="content">
+        <Outlet />
+      </div>
+    </>
+  );
 }
 
-export default App
+export default App;
