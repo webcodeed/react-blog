@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 
 const Navbar = ({ user }) => {
   return (
@@ -11,11 +11,16 @@ const Navbar = ({ user }) => {
       </div>
       <div className="auth">
         {user ? (
-          <p> Welcome, Guest</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <p> Welcome, {user.name}</p>
+            <Form action="/" method="post">
+              <button>Logout</button>
+            </Form>
+          </div>
         ) : (
           <div className="btn-group">
-            <button>Log In</button>
-            <button>Register</button>
+            <Link to="/login">Log In</Link>
+            <Link to="/register">Register</Link>
           </div>
         )}
       </div>

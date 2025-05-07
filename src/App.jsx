@@ -3,7 +3,6 @@ import Navbar from "./Navbar";
 
 function App() {
   const res = useLoaderData();
-  console.log(res);
 
   return (
     <>
