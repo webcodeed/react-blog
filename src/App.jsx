@@ -2,11 +2,11 @@ import { Outlet, useLoaderData } from "react-router";
 import Navbar from "./Navbar";
 
 function App() {
-  const res = useLoaderData();
+  const { user } = useLoaderData();
 
   return (
     <>
-      <Navbar user={res.user} />
+      <Navbar user={user} />
       <div className="content">
         <Outlet />
       </div>

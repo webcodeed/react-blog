@@ -12,29 +12,39 @@ import Create from "./Create.jsx";
 import Home from "./Home.jsx";
 import BlogDetails from "./BlogDetails.jsx";
 import NotFound from "./NotFound.jsx";
-import { account } from "./lib/appwrite.js";
+import {
+  account,
+  DATABASE_COLLECTION,
+  databases,
+  DATBASE_ID,
+} from "./lib/appwrite.js";
 import Login from "./Login.jsx";
 
 import Register from "./Register.jsx";
-import { ID } from "appwrite";
+import { ID, Query, Permission, Role } from "appwrite";
+
+let user;
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     loader: async () => {
-      let user;
+      if (user) {
+        return { user, error: null };
+      }
       try {
-        user = await account.get();
-
-        return { user };
+        const response = await account.get();
+        user = response;
+        return { user, error: null };
       } catch (error) {
-        return { user, error: error.message };
+        return { user: null, error: error.message };
       }
     },
     action: async () => {
       try {
         await account.deleteSession("current");
+        user = null;
         return null;
       } catch (error) {
         return error.message;
@@ -44,33 +54,107 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+        loader: async () => {
+          try {
+            const data = await databases.listDocuments(
+              DATBASE_ID,
+              DATABASE_COLLECTION,
+              [Query.orderDesc("$createdAt")],
+            );
+            return { error: null, data };
+          } catch (error) {
+            return { error: error.message, data: null };
+          }
+        },
       },
       {
         path: "/create",
         element: <Create />,
+        action: async ({ request }) => {
+          const form = await request.formData();
+          const title = form.get("title");
+          const body = form.get("body");
+
+          try {
+            if (!user) {
+              throw new Error("Login or Register to create new blogposts");
+            }
+
+            const { $id, name } = user;
+            const data = { title, body, author: name };
+
+            await databases.createDocument(
+              DATBASE_ID,
+              DATABASE_COLLECTION,
+              ID.unique(),
+              data,
+              [
+                Permission.read(Role.any()), // Anyone can read
+                Permission.update(Role.user($id)), // Only this user can update
+                Permission.delete(Role.user($id)), // Only this user can delete
+              ],
+            );
+
+            return redirect("/");
+          } catch (error) {
+            return error.message;
+          }
+        },
       },
       {
         path: "/blogs/:id",
         element: <BlogDetails />,
+        loader: async ({ params }) => {
+          const { id } = params;
+          try {
+            const response = await databases.listDocuments(
+              DATBASE_ID,
+              DATABASE_COLLECTION,
+              [Query.equal("$id", id)],
+            );
+
+            if (!response.total) {
+              throw new Error(
+                "Error 404: Unable to find the page you're looking for",
+              );
+            }
+
+            return { error: null, data: response.documents[0] };
+          } catch (error) {
+            return { error: error.message, data: null };
+          }
+        },
+        action: async ({ params }) => {
+          const { id } = params;
+          try {
+            await databases.deleteDocument(DATBASE_ID, DATABASE_COLLECTION, id);
+
+            return redirect("/");
+          } catch (error) {
+            return error.message;
+          }
+        },
       },
       {
         path: "/login",
         element: <Login />,
-        // loader: authLoader,
         action: async ({ request }) => {
           const form = await request.formData();
           const email = form.get("email");
           const password = form.get("password");
 
-          await account.createEmailPasswordSession(email, password);
+          try {
+            await account.createEmailPasswordSession(email, password);
 
-          return redirect("/");
+            return redirect("/");
+          } catch (error) {
+            return error.message;
+          }
         },
       },
       {
         path: "/register",
         element: <Register />,
-        // loader: authLoader,
         action: async ({ request }) => {
           try {
             const form = await request.formData();

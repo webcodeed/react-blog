@@ -1,9 +1,13 @@
-import { Form } from "react-router-dom";
+import { Form, useActionData } from "react-router-dom";
 
 const Login = () => {
+  const errorMsg = useActionData();
   return (
     <div className="create">
       <h2>Existing User</h2>
+      {errorMsg && (
+        <p style={{ fontWeight: "bold", marginBottom: "20px" }}>{errorMsg}</p>
+      )}
       <Form action="/login" method="post">
         {/* E-mail */}
         <label htmlFor="email">E-mail:</label>
