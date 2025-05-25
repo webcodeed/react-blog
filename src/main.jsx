@@ -15,6 +15,7 @@ import { account, COLLECTION_ID, DATABASE_ID, databases } from "./appwrite/confi
 import Register from "./Register.jsx"
 import Login from "./Login.jsx"
 import { ID, Query, Permission, Role } from "appwrite"
+import { toast } from "react-toastify"
 
 const router = createBrowserRouter([
     {
@@ -63,7 +64,6 @@ const router = createBrowserRouter([
                         const { $id, name } = await account.get()
 
                         const data = { title, body, author: name };
-                        console.log($id, name)
 
                         await databases.createDocument(
                             DATABASE_ID,
@@ -86,12 +86,38 @@ const router = createBrowserRouter([
             {
                 path: "/blogs/:id",
                 element: <BlogDetails />,
+                loader: async ({ params }) => {
+                    const { id } = params
+                    try {
+                        const data = await databases.getDocument(DATABASE_ID, COLLECTION_ID, id)
+
+                        return { data, error: null }
+                    } catch (error) {
+                        return { data: null, error: error.message }
+                    }
+                },
+                action: async ({ request, params }) => {
+                    const { id } = params
+                    const method = request.method.toLowerCase()
+
+                    try {
+                        if (method == "delete") {
+                            await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, id)
+                            return redirect("/")
+                        }
+                        
+                    } catch (error) {
+                        toast.error("Oops!")
+                        return error.message
+                    }
+                }
             },
             {
                 path: "/register",
                 element: <Register />,
                 action: async ({ request }) => {
                     try {
+
                         const form = await request.formData()
                         const email = form.get("email");
                         const password = form.get("password");
